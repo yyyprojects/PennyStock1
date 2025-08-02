@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guide to Penny Stocks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Neutrals -->
+    <!-- Application Structure Plan: A thematic, single-page scrolling design with a sticky navigation bar. The structure prioritizes user understanding by starting with a core concept (Price vs. Value), moving to a visual risk/reward comparison, explaining the trading landscape, detailing a common fraud scheme, and ending with a practical investor toolkit. This non-linear, task-oriented flow is more intuitive for learning than the report's original structure, allowing users to explore concepts in a logical, engaging sequence. -->
+    <!-- Visualization & Content Choices: 
+        1. Price vs. Value (Inform/Compare): Side-by-side cards (HTML/CSS) to directly contrast share price and market cap, clarifying a common misconception.
+        2. Risk/Reward Spectrum (Compare): An interactive bar chart (Chart.js) to visually compare penny stocks against other stock types on key metrics. Interaction (clicking labels) highlights data, making comparisons clear and engaging.
+        3. Market Landscape (Organize/Inform): A clickable flowchart (HTML/Tailwind) to explain trading venues. This visual organization is easier to grasp than text alone. Clicks reveal detailed info, layering complexity on demand.
+        4. Pump & Dump Animation (Explain Change): A step-by-step animated diagram (HTML/CSS/JS) to illustrate a complex fraud scheme simply and memorably.
+        5. Investor's Toolkit (Inform): An accordion component (HTML/JS) to present actionable tips concisely, allowing users to expand only what they need.
+        All choices avoid SVG/Mermaid, using standard web tech for maximum compatibility and interactivity. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+        }
+        .section-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 50vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .fraud-step {
+            opacity: 0.3;
+            transition: opacity 0.5s ease;
+        }
+        .fraud-step.active {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-gray-800">Penny Stock Guide</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#definition" class="nav-link px-3 py-2 text-sm font-medium text-gray-600">Definition</a>
+                        <a href="#risk-reward" class="nav-link px-3 py-2 text-sm font-medium text-gray-600">Risk & Reward</a>
+                        <a href="#markets" class="nav-link px-3 py-2 text-sm font-medium text-gray-600">Markets</a>
+                        <a href="#fraud" class="nav-link px-3 py-2 text-sm font-medium text-gray-600">Fraud</a>
+                        <a href="#toolkit" class="nav-link px-3 py-2 text-sm font-medium text-gray-600">Toolkit</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+        <section id="intro" class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What is a Penny Stock?</h2>
+            <p class="max-w-3xl mx-auto text-lg text-gray-600">In the U.S., it's simple: a penny stock is any stock trading for **less than $5 per share**. But a low price doesn't mean a company isn't valuable, and it's crucial to understand this distinction. This guide will walk you through the key concepts you need to know before considering an investment.</p>
+        </section>
+
+        <div class="space-y-20">
+
+            <section id="definition" class="scroll-mt-20">
+                <div class="text-center mb-12">
+                    <h3 class="text-2xl md:text-3xl font-semibold text-gray-800">Price vs. Value: A Core Concept</h3>
+                    <p class="mt-3 max-w-2xl mx-auto text-md text-gray-500">A stock's price is just one piece of the puzzle. The true size of a company is its **market capitalization** (Market Cap = Share Price × Number of Shares). A low-priced stock can belong to a huge company, and vice-versa. This section clarifies that "penny stock" is a regulatory term based on price, not a measure of a company's worth.</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div class="section-card p-6">
+                        <h4 class="font-bold text-xl text-blue-600">Example A: "Penny Stock" by Price</h4>
+                        <p class="text-gray-600 mt-2">This company's stock trades below $5, making it a penny stock by definition, but its large number of shares gives it a substantial market value.</p>
+                        <div class="mt-4 space-y-2">
+                            <p class="text-lg">Share Price: <span class="font-bold text-green-600">$4.00</span></p>
+                            <p class="text-lg">Shares Outstanding: <span class="font-bold">1 Billion</span></p>
+                            <hr class="my-2">
+                            <p class="text-lg">Market Cap: <span class="font-bold text-xl text-blue-800">$4 Billion</span></p>
+                        </div>
+                        <p class="mt-4 text-sm text-gray-500">This would be a **Large-Cap** company, despite its "penny stock" price.</p>
+                    </div>
+                    <div class="section-card p-6">
+                        <h4 class="font-bold text-xl text-purple-600">Example B: Not a Penny Stock</h4>
+                        <p class="text-gray-600 mt-2">This company's stock trades above $5, but with fewer shares, its total market value is much smaller.</p>
+                        <div class="mt-4 space-y-2">
+                            <p class="text-lg">Share Price: <span class="font-bold text-green-600">$10.00</span></p>
+                            <p class="text-lg">Shares Outstanding: <span class="font-bold">20 Million</span></p>
+                            <hr class="my-2">
+                            <p class="text-lg">Market Cap: <span class="font-bold text-xl text-purple-800">$200 Million</span></p>
+                        </div>
+                        <p class="mt-4 text-sm text-gray-500">This is a **Micro-Cap** company, a category often associated with penny stocks, but it isn't one by the price definition.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="risk-reward" class="scroll-mt-20">
+                <div class="text-center mb-12">
+                    <h3 class="text-2xl md:text-3xl font-semibold text-gray-800">The Risk & Reward Spectrum</h3>
+                    <p class="mt-3 max-w-2xl mx-auto text-md text-gray-500">Penny stocks exist at the extreme end of the investment spectrum. This chart compares them to other stock types across key characteristics. Click on the labels to highlight the differences and see why they are considered high-risk, high-reward.</p>
+                </div>
+                <div class="section-card p-4 md:p-6">
+                    <div class="chart-container">
+                        <canvas id="riskRewardChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="markets" class="scroll-mt-20">
+                <div class="text-center mb-12">
+                    <h3 class="text-2xl md:text-3xl font-semibold text-gray-800">Where Do Penny Stocks Trade?</h3>
+                    <p class="mt-3 max-w-2xl mx-auto text-md text-gray-500">Unlike major stocks, most penny stocks trade on "Over-the-Counter" (OTC) markets, which have different levels of transparency and risk. Understanding these tiers is crucial for due diligence. Click on each market tier below to learn more about its characteristics.</p>
+                </div>
+                <div class="space-y-8">
+                    <div class="market-tier-card section-card p-6 cursor-pointer" data-tier="otcqx">
+                        <h4 class="font-bold text-xl text-emerald-600">OTCQX® Best Market</h4>
+                        <p class="text-gray-600 mt-2">The highest tier of OTC markets. Companies must meet financial standards and provide ongoing disclosure. Considered the least risky OTC tier.</p>
+                        <div id="details-otcqx" class="accordion-content mt-4 text-gray-700 space-y-2">
+                            <p><strong>Transparency:</strong> High. Companies provide regular financial reports.</p>
+                            <p><strong>Requirements:</strong> Must meet tests for financial strength, have a minimum bid price, and are audited by a third party.</p>
+                            <p><strong>Risk Profile:</strong> Lower than other OTC tiers, but still higher than major exchanges.</p>
+                        </div>
+                    </div>
+                    <div class="market-tier-card section-card p-6 cursor-pointer" data-tier="otcqb">
+                        <h4 class="font-bold text-xl text-amber-600">OTCQB® Venture Market</h4>
+                        <p class="text-gray-600 mt-2">For early-stage and developing companies. Requires companies to be current in their reporting, but financial standards are less strict than OTCQX.</p>
+                        <div id="details-otcqb" class="accordion-content mt-4 text-gray-700 space-y-2">
+                            <p><strong>Transparency:</strong> Medium. Requires annual financial reporting and a minimum bid price of $0.01.</p>
+                            <p><strong>Requirements:</strong> Must undergo annual verification. Shell companies are prohibited.</p>
+                            <p><strong>Risk Profile:</strong> Medium. More speculative than OTCQX.</p>
+                        </div>
+                    </div>
+                    <div class="market-tier-card section-card p-6 cursor-pointer" data-tier="pink">
+                        <h4 class="font-bold text-xl text-rose-600">Pink® Open Market</h4>
+                        <p class="text-gray-600 mt-2">The most speculative tier with variable levels of disclosure, from companies that provide regular reports to those with no information at all. This is where the highest risks lie.</p>
+                        <div id="details-pink" class="accordion-content mt-4 text-gray-700 space-y-2">
+                            <p><strong>Transparency:</strong> Varies from some to none. Companies are categorized by the level of information they provide.</p>
+                            <p><strong>Requirements:</strong> No minimum financial standards are required to be quoted.</p>
+                            <p><strong>Risk Profile:</strong> Highest. Prone to fraud and manipulation due to lack of information.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="fraud" class="scroll-mt-20">
+                <div class="text-center mb-12">
+                    <h3 class="text-2xl md:text-3xl font-semibold text-gray-800">Anatomy of a "Pump and Dump"</h3>
+                    <p class="mt-3 max-w-2xl mx-auto text-md text-gray-500">The low liquidity and lack of information in penny stock markets make them a target for fraud. The "pump-and-dump" is a common scheme. This animation shows how it works, step-by-step, to help you recognize the warning signs.</p>
+                </div>
+                <div class="section-card p-6 md:p-8">
+                    <div class="flex flex-col lg:flex-row gap-8">
+                        <div class="lg:w-1/2 space-y-4">
+                            <div id="step-1" class="fraud-step p-4 rounded-lg border border-gray-200">
+                                <h4 class="font-semibold text-lg">1. Accumulation</h4>
+                                <p class="text-sm text-gray-600">Fraudsters quietly buy large amounts of a thinly traded stock at a low price.</p>
+                            </div>
+                            <div id="step-2" class="fraud-step p-4 rounded-lg border border-gray-200">
+                                <h4 class="font-semibold text-lg">2. The Pump</h4>
+                                <p class="text-sm text-gray-600">They spread false or misleading positive news through social media, emails, or press releases to create hype and drive up the price.</p>
+                            </div>
+                            <div id="step-3" class="fraud-step p-4 rounded-lg border border-gray-200">
+                                <h4 class="font-semibold text-lg">3. The Dump</h4>
+                                <p class="text-sm text-gray-600">As unsuspecting investors buy in and the price skyrockets, the fraudsters sell—or "dump"—all their shares for a large profit.</p>
+                            </div>
+                            <div id="step-4" class="fraud-step p-4 rounded-lg border border-gray-200">
+                                <h4 class="font-semibold text-lg">4. The Crash</h4>
+                                <p class="text-sm text-gray-600">The massive sell-off causes the stock price to plummet, leaving other investors with worthless shares.</p>
+                            </div>
+                        </div>
+                        <div class="lg:w-1/2 flex items-center justify-center">
+                            <div class="w-full h-64 bg-gray-50 rounded-lg p-2">
+                                <canvas id="fraudChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="toolkit" class="scroll-mt-20">
+                <div class="text-center mb-12">
+                    <h3 class="text-2xl md:text-3xl font-semibold text-gray-800">Investor's Toolkit: How to Stay Safe</h3>
+                    <p class="mt-3 max-w-2xl mx-auto text-md text-gray-500">While risky, some investors are drawn to penny stocks. If you're considering them, protecting yourself is paramount. This section provides a checklist of essential due diligence and red flags to watch for. Click each item to expand it.</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="accordion-item section-card overflow-hidden">
+                        <button class="accordion-header w-full text-left p-5 font-semibold text-lg flex justify-between items-center">
+                            <span>1. Prioritize Rigorous Due Diligence</span>
+                            <span class="transform transition-transform duration-300">&#9662;</span>
+                        </button>
+                        <div class="accordion-content px-5 pb-5">
+                            <p class="text-gray-600">Never trust promotional material or unsolicited tips. Independently research the company's financials (if available), business model, and management team. Check the SEC's EDGAR database for official filings. A lack of information is a major red flag.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item section-card overflow-hidden">
+                        <button class="accordion-header w-full text-left p-5 font-semibold text-lg flex justify-between items-center">
+                            <span>2. Beware of High-Pressure Sales Tactics</span>
+                            <span class="transform transition-transform duration-300">&#9662;</span>
+                        </button>
+                        <div class="accordion-content px-5 pb-5">
+                            <p class="text-gray-600">Be extremely skeptical of anyone promising "guaranteed" high returns or creating a sense of urgency. Legitimate investments don't need high-pressure pitches. If it sounds too good to be true, it almost certainly is.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item section-card overflow-hidden">
+                        <button class="accordion-header w-full text-left p-5 font-semibold text-lg flex justify-between items-center">
+                            <span>3. Understand Liquidity and Trading Volume</span>
+                            <span class="transform transition-transform duration-300">&#9662;</span>
+                        </button>
+                        <div class="accordion-content px-5 pb-5">
+                            <p class="text-gray-600">Check the stock's average daily trading volume. Very low volume (thin trading) means you may not be able to sell your shares when you want to, or that your sale could drastically drop the price. This is a critical risk.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item section-card overflow-hidden">
+                        <button class="accordion-header w-full text-left p-5 font-semibold text-lg flex justify-between items-center">
+                            <span>4. Acknowledge and Manage Risk</span>
+                            <span class="transform transition-transform duration-300">&#9662;</span>
+                        </button>
+                        <div class="accordion-content px-5 pb-5">
+                            <p class="text-gray-600">Only invest money you can afford to lose entirely. Penny stocks should, at most, be a very small part of a well-diversified portfolio. Use tools like stop-loss orders to limit potential losses, but be aware they may not execute in a fast-crashing, illiquid market.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+            <p class="text-sm text-gray-400">This information is for educational purposes only and not investment advice. Investing in penny stocks is extremely risky and can result in the loss of your entire investment.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const riskRewardData = {
+                labels: ['Volatility', 'Potential Reward', 'Liquidity', 'Transparency'],
+                datasets: [
+                    {
+                        label: 'Penny Stocks',
+                        data: [95, 90, 20, 25],
+                        backgroundColor: 'rgba(220, 38, 38, 0.6)',
+                        borderColor: 'rgba(220, 38, 38, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Small-Cap Stocks',
+                        data: [70, 65, 60, 75],
+                        backgroundColor: 'rgba(234, 179, 8, 0.6)',
+                        borderColor: 'rgba(234, 179, 8, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Large-Cap Stocks',
+                        data: [30, 40, 90, 95],
+                        backgroundColor: 'rgba(37, 99, 235, 0.6)',
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            };
+
+            const riskRewardCtx = document.getElementById('riskRewardChart').getContext('2d');
+            const riskRewardChart = new Chart(riskRewardCtx, {
+                type: 'bar',
+                data: riskRewardData,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.2)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.x !== null) {
+                                        label += context.parsed.x + '% (Relative Score)';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const fraudData = {
+                labels: ['Start', 'Hype', 'Peak', 'Crash'],
+                datasets: [{
+                    label: 'Stock Price',
+                    data: [1, 1.5, 10, 0.5],
+                    fill: true,
+                    borderColor: 'rgb(220, 38, 38)',
+                    backgroundColor: 'rgba(220, 38, 38, 0.2)',
+                    tension: 0.4,
+                    pointRadius: 0,
+                }]
+            };
+            const fraudCtx = document.getElementById('fraudChart').getContext('2d');
+            const fraudChart = new Chart(fraudCtx, {
+                type: 'line',
+                data: fraudData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => `$${value.toFixed(2)}`
+                            }
+                        },
+                        x: {
+                            display: false
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    }
+                }
+            });
+
+            let currentStep = 0;
+            const steps = document.querySelectorAll('.fraud-step');
+            function animateFraudSteps() {
+                steps.forEach((step, index) => {
+                    if (index === currentStep) {
+                        step.classList.add('active');
+                    } else {
+                        step.classList.remove('active');
+                    }
+                });
+                currentStep = (currentStep + 1) % steps.length;
+            }
+            setInterval(animateFraudSteps, 2000);
+            animateFraudSteps();
+
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    const arrow = header.querySelector('span:last-child');
+                    
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                        arrow.style.transform = 'rotate(0deg)';
+                    } else {
+                        document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+                        document.querySelectorAll('.accordion-header span:last-child').forEach(a => a.style.transform = 'rotate(0deg)');
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        arrow.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+
+            document.querySelectorAll('.market-tier-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const tier = card.dataset.tier;
+                    const details = document.getElementById(`details-${tier}`);
+                    if (details.style.maxHeight) {
+                        details.style.maxHeight = null;
+                    } else {
+                        details.style.maxHeight = details.scrollHeight + "px";
+                    }
+                });
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section[id]');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
